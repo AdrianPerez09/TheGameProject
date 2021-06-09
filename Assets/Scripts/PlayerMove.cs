@@ -7,17 +7,17 @@ public class PlayerMove : MonoBehaviour
 {
 
     public Animator animator;
-    public CapsuleCollider collider;
     public Transform actualPosition;
     public float speed ;
-    public float walkSpeed=0.2f;
-    public float runningSpeed = 0.42f;
+    public float walkSpeed=0.1f;
+    public float runningSpeed = 0.2f;
     public float rotationSpeed=200.0f;
     public float turnSmothTime = 0.1f;
     public float airHeight=0;
     public float groundHeight=0;
     
-   
+
+
 
     float turnSmothVelocity;
 
@@ -37,22 +37,21 @@ public class PlayerMove : MonoBehaviour
         Vector3 movement = new Vector3(horizontal, 0f, vertical) * speed * Time.deltaTime;
         transform.Translate(movement, Space.Self);
 
+        
 
         setMovement(animator,horizontal,vertical);
-
-
 
     }
 
     private void setMovement(Animator animator,float horizontal,float vertical)
     {
-        bool fall = false;
+        bool falling = false;
 
         if (IsGrounded())
         {
             Debug.Log("Player on the ground");
             
-            groundHeight= actualPosition.transform.position.y;
+           
             
 
                 animator.SetBool("is_grounded", true);
@@ -62,10 +61,11 @@ public class PlayerMove : MonoBehaviour
         else
         {
 
-             airHeight=actualPosition.transform.position.y;
+             
+
+            fallIdle();
 
             
-                fall = true;
          
             Debug.Log("Player on the air.");
         }
@@ -83,13 +83,14 @@ public class PlayerMove : MonoBehaviour
                 animator.SetBool("is_running", true);
                 animator.SetBool("is_walking", false);
             }
-            else if(Input.GetKey(KeyCode.LeftShift) && !animator.GetBool("is_colliding") && fall)
+            else if(Input.GetKey(KeyCode.LeftShift) && !animator.GetBool("is_colliding")|| animator.GetBool("is_colliding") &&animator.GetBool("is_falling"))
             {
 
-                animator.SetBool("is_falling", true);
-                animator.SetBool("is_running", false);
+                fallRun();
 
-            }else
+
+            }
+            else
 
             {
                 speed = walkSpeed;
@@ -103,10 +104,9 @@ public class PlayerMove : MonoBehaviour
 
                 }
 
-                if (fall)
+                if (animator.GetBool("is_falling"))
                 {
-                    animator.SetBool("is_falling", true);
-                    animator.SetBool("is_walking", false);
+                    fallWalk();
 
                 }
 
@@ -128,10 +128,9 @@ public class PlayerMove : MonoBehaviour
             animator.SetBool("is_walkingRight", false);
             speed = walkSpeed;
 
-            if (fall)
+            if (animator.GetBool("is_falling"))
             {
-                animator.SetBool("is_falling", true);
-                animator.SetBool("is_walkingLeft", false);
+                fallLeft();
 
             }
 
@@ -142,10 +141,9 @@ public class PlayerMove : MonoBehaviour
             animator.SetBool("is_walkingLeft", false);
             animator.SetBool("is_walkingRight", true);
             speed = walkSpeed;
-            if (fall)
+            if (animator.GetBool("is_falling"))
             {
-                animator.SetBool("is_falling", true);
-                animator.SetBool("is_walkingRight", false);
+                fallRight();
 
             }
         }
@@ -181,21 +179,79 @@ public class PlayerMove : MonoBehaviour
 
     }
 
-   
-
-    private void OnTriggerEnter(Collider other)
+    private void fallLeft()
     {
 
-        Debug.Log("collition detected");
-
-
-        animator.SetBool("is_colliding", true);
+        animator.SetBool("is_grounded", false);
+        animator.SetBool("is_falling", true);
+        animator.SetBool("is_walking", false);
+        animator.SetBool("is_walkingRight", false);
+        animator.SetBool("is_walkingLeft", true);
+        animator.SetBool("is_running", false);
 
     }
 
+    private void fallRight()
+    {
+
+        animator.SetBool("is_grounded", false);
+        animator.SetBool("is_falling", true);
+        animator.SetBool("is_walking", false);
+        animator.SetBool("is_walkingRight", true);
+        animator.SetBool("is_walkingLeft", false);
+        animator.SetBool("is_running", false);
+
+
+    }
+
+    private void fallWalk()
+    {
+        animator.SetBool("is_grounded", false);
+        animator.SetBool("is_falling", true);
+        animator.SetBool("is_walking", true);
+        animator.SetBool("is_walkingRight", false);
+        animator.SetBool("is_walkingLeft", false);
+        animator.SetBool("is_running", false);
+    }
+
+    private void fallRun()
+    {
+        animator.SetBool("is_grounded", false);
+        animator.SetBool("is_falling", true);
+        animator.SetBool("is_walking", false);
+        animator.SetBool("is_walkingRight", false);
+        animator.SetBool("is_walkingLeft", false);
+        animator.SetBool("is_running", true);
+    }
+
+    private void fallIdle()
+    {
+
+        animator.SetBool("is_grounded", false);
+        animator.SetBool("is_falling", true);
+        animator.SetBool("is_walking", false);
+        animator.SetBool("is_walkingRight", false);
+        animator.SetBool("is_walkingLeft", false);
+        animator.SetBool("is_running", false);
+    }
+
+    private void OnTriggerEnter(Collider obj)
+    {
+
+        if (obj.tag!="Item")
+        {
+
+            Debug.Log("collition detected");
+
+
+            animator.SetBool("is_colliding", true);
+        }
+    }
     private bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, Vector3.down, 0.1f);
+     
+
+        return Physics.Raycast(transform.position, Vector3.down,0.7f );
 
     }
 

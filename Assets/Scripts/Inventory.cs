@@ -42,24 +42,45 @@ public class Inventory : MonoBehaviour
         {
             inventoryEnabled = !inventoryEnabled;
 
+        }else if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            inventoryEnabled = false;
+
+         
+
         }
 
         if (inventoryEnabled)
         {
             inventory.SetActive(true);
+
+            ShowMouseCursor();
         }
         else{
 
+            HideMouseCursor();
 
             inventory.SetActive(false);
         }
 
     }
 
+    private void HideMouseCursor()
+    {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    private void ShowMouseCursor()
+    {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
 
-        if (other.tag=="item")
+        if (other.tag=="Item")
         {
             GameObject itemPickedUp = other.gameObject;
 

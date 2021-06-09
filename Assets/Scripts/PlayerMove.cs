@@ -15,7 +15,8 @@ public class PlayerMove : MonoBehaviour
     public float turnSmothTime = 0.1f;
     public float airHeight=0;
     public float groundHeight=0;
-    
+
+    private Rigidbody body;
 
 
 
@@ -24,6 +25,8 @@ public class PlayerMove : MonoBehaviour
     private void Start()
     {
         animator = GetComponent<Animator>();
+
+        body = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -31,13 +34,13 @@ public class PlayerMove : MonoBehaviour
     {
        
 
-        float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
+        float horizontal = Input.GetAxisRaw("Horizontal")*speed;
+        float vertical = Input.GetAxisRaw("Vertical")*speed;
 
-        Vector3 movement = new Vector3(horizontal, 0f, vertical) * speed * Time.deltaTime;
-        transform.Translate(movement, Space.Self);
+        Vector3 move = transform.right * horizontal + transform.forward * vertical;
 
-        
+        body.velocity = new Vector3(move.x, body.velocity.y, move.z);
+
 
         setMovement(animator,horizontal,vertical);
 
